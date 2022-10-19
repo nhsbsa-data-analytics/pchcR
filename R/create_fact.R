@@ -38,7 +38,7 @@ create_fact <- function(
                      from = dbplyr::in_schema("DIM", "CUR_EP_LEVEL_5_FLAT_DIM")) |>
     dplyr::filter(CUR_CTRY_OU == 1) |>
     dplyr::mutate(
-      STP_NAME = dplyr::case_when(
+      ICB_NAME = dplyr::case_when(
         CUR_AREA_LTST_CLSD == "Y" ~ "UNKNOWN ICB",
         CUR_AREA_TEAM_LTST_NM %in% c(
           'ENGLISH/WELSH DUMMY DENTAL',
@@ -47,7 +47,7 @@ create_fact <- function(
         ) ~ "UNKNOWN ICB",
         TRUE ~ CUR_FRMTTD_AREA_TEAM_LTST_NM
       ),
-      STP_CODE = dplyr::case_when(
+      ICB_CODE = dplyr::case_when(
         CUR_AREA_LTST_CLSD == "Y" ~ "-",
         CUR_AREA_TEAM_LTST_NM %in% c(
           'ENGLISH/WELSH DUMMY DENTAL',
@@ -60,8 +60,8 @@ create_fact <- function(
     dplyr::select(
       LVL_5_OUPDT,
       LVL_5_OU,
-      STP_NAME,
-      STP_CODE,
+      ICB_NAME,
+      ICB_CODE,
       LVL_5_LTST_TYPE
     )
 
@@ -80,16 +80,6 @@ create_fact <- function(
   # build fact table
   fact <- dplyr::tbl(con,
                      from = dbplyr::in_schema("AML", "PX_FORM_ITEM_ELEM_COMB_FACT_AV")) |>
-    dplyr::inner_join(tdim,
-               by = c("YEAR_MONTH" = "YEAR_MONTH")) |>
-    dplyr::inner_join(porg,
-               by = c("PRESC_TYPE_PRNT" = "LVL_5_OUPDT",
-                      "PRESC_ID_PRNT" = "LVL_5_OU")) |>
-    dplyr::inner_join(drug,
-               by = c(
-                 "CALC_PREC_DRUG_RECORD_ID" = "RECORD_ID",
-                 "YEAR_MONTH" = "YEAR_MONTH"
-               )) |>
     #regular exclusions
     dplyr::filter(
       PAY_DA_END == "N",
@@ -108,18 +98,36 @@ create_fact <- function(
       # excludes LDP dummy forms
       PRESC_TYPE_PRNT %NOT IN% c(8L, 54L)
     ) |>
+    dplyr::inner_join(tdim,
+                      by = c("YEAR_MONTH" = "YEAR_MONTH")) |>
+    dplyr::inner_join(porg,
+                      by = c("PRESC_TYPE_PRNT" = "LVL_5_OUPDT",
+                             "PRESC_ID_PRNT" = "LVL_5_OU")) |>
+    dplyr::inner_join(drug,
+                      by = c(
+                        "CALC_PREC_DRUG_RECORD_ID" = "RECORD_ID",
+                        "YEAR_MONTH" = "YEAR_MONTH"
+                      )) |>
+    dplyr::mutate(
+      LVL_5_LTST_TYPE = case_when(
+        LVL_5_LTST_TYPE == "COMMUNITY NURSE PRESCRIBING CONTRACT" ~ "GP PRACTICE / COST CENTRE",
+        TRUE ~ LVL_5_LTST_TYPE
+      )
+    ) |>
     dplyr::group_by(
       YEAR_MONTH,
       FINANCIAL_YEAR,
+      ICB_NAME,
+      ICB_CODE,
       LVL_5_LTST_TYPE,
       BNF_CHAPTER,
-      BNF_SECTION,
       CHAPTER_DESCR,
-      SECTION_DESCR,
-      STP_CODE
+      BNF_SECTION,
+      SECTION_DESCR
     ) |>
     dplyr::summarise(
-      ITEM_PAY_DR_NIC = sum(ITEM_PAY_DR_NIC, na.rm = T) / 100
+      ITEM_PAY_DR_NIC = sum(ITEM_PAY_DR_NIC, na.rm = T) / 100,
+      .groups = "drop"
     )
 
 
