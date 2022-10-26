@@ -12,7 +12,7 @@
 #' @importFrom stringr str_extract str_extract_all str_length
 #'
 #' @examples
-#' scmd_data(file = "Y:/Official Stats/PCHC/data/ICB_BNF_2022.xlsx")
+#' scmd_icb_bnf_data(file = "C:/ICB_BNF_2022.xlsx")
 scmd_icb_bnf_data <- function(
   file
 ) {
@@ -30,7 +30,7 @@ scmd_icb_bnf_data <- function(
       FINANCIAL_YEAR = gsub(" ", "/", i)
     ) |>
     dplyr::relocate(FINANCIAL_YEAR) |>
-    #add .1 to incotinence applicances as needed for future manipulations to BND chapter and section
+    #add .1 to incontinence appliances as needed for future manipulations to BNF chapter and section
     mutate(
       `Cost (£)` = case_when(
         `Cost (£)` == "22 - Incontinence Appliances" ~ "22.1 - Incontinence Appliances",
@@ -50,9 +50,9 @@ scmd_icb_bnf_data <- function(
       BNF = 2
     ) |>
     tidyr::pivot_longer(cols = -c(FINANCIAL_YEAR, BNF),
-                        names_to = "STP",
+                        names_to = "ICB",
                         values_to = "COST") |>
-    dplyr::filter(!grepl("\\...", STP)) |>
+    dplyr::filter(!grepl("\\...", ICB)) |>
     dplyr::mutate(
       BNF_CHAPTER = stringr::str_extract(BNF, "[^\\.]+"),
       BNF_SECTION = as.character(stringr::str_extract_all(BNF,"(?<=\\.).+(?= -)")),

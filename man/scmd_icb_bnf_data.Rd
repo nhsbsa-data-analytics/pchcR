@@ -16,5 +16,5 @@ a data frame
 Manipulate SCMD data
 }
 \examples{
-scmd_data(file = "Y:/Official Stats/PCHC/data/ICB_BNF_2022.xlsx")
+scmd_icb_bnf_data(file = "C:/ICB_BNF_2022.xlsx")
 }
