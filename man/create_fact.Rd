@@ -4,12 +4,12 @@
 \alias{create_fact}
 \title{Easy helper for 'create_fact'}
 \usage{
-create_fact(con, from = 201604L, to = 202203L)
+create_fact(con, from = 201704L, to = 202203L)
 }
 \arguments{
 \item{con}{The database connection object to be used}
 
-\item{from}{The first month you wish to collect data from (defaults to 201504)}
+\item{from}{The first month you wish to collect data from (defaults to 201704)}
 
 \item{to}{The last month you wish to collect data from (defaults to 202203)}
 }

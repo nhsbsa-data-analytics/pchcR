@@ -29,8 +29,8 @@ create_fact <- function(
                      from = dbplyr::in_schema("DIM", "YEAR_MONTH_DIM")) |>
     dplyr::select(FINANCIAL_YEAR, YEAR_MONTH) |>
     dplyr::filter(
-      YEAR_MONTH >= 201604L,
-      YEAR_MONTH <= 202203L
+      YEAR_MONTH >= from,
+      YEAR_MONTH <= to
     )
 
   # build org dimension -------

@@ -45,11 +45,11 @@ table_2_dwh <- function(
       prev_year_HOSPITAL = lag(`HOSPITAL`,1 )
     ) |>
     dplyr::mutate(
-      `Primary care prescribing dispensed in the community (GBP)` =
+      `Primary care prescribing dispensed in the community (%)` =
         (`GP PRACTICE / COST CENTRE` - prev_year_GP_PRACTICE) / prev_year_GP_PRACTICE * 100,
-      `Dental prescribing dispensed in the community (GBP)` =
+      `Dental prescribing dispensed in the community (%)` =
         (`DENTIST PRACTICE` - prev_year_DENTIST_PRACTICE) / prev_year_DENTIST_PRACTICE * 100,
-      `Hospital prescribing dispensed in the community (GBP)` =
+      `Hospital prescribing dispensed in the community (%)` =
         (`HOSPITAL` - prev_year_HOSPITAL) / prev_year_HOSPITAL * 100
     ) |>
     stats::na.omit() |>
