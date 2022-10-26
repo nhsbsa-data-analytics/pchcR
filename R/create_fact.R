@@ -6,7 +6,7 @@
 #' Build 'PCHC_FACT_DIM' in personal schema
 #'
 #' @param con The database connection object to be used
-#' @param from The first month you wish to collect data from (defaults to 201504)
+#' @param from The first month you wish to collect data from (defaults to 201704)
 #' @param to The last month you wish to collect data from (defaults to 202203)
 #'
 #' @import dplyr
@@ -21,7 +21,7 @@
 
 create_fact <- function(
     con,
-    from = 201604L,
+    from = 201704L,
     to = 202203L) {
 
   #build time dimension ---------
