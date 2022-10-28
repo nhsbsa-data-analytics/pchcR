@@ -146,11 +146,11 @@ create_fact <- function(
 
   # drop time dimension if exists
   exists <- con |>
-    DBI::dbExistsTable(name = "PCHC_FACT_DIM_TESTING")
+    DBI::dbExistsTable(name = "PCHC_FACT_DIM")
   # Drop any existing table beforehand
   if (exists) {
     con |>
-      DBI::dbRemoveTable(name = "PCHC_FACT_DIM_TESTING")
+      DBI::dbRemoveTable(name = "PCHC_FACT_DIM")
   }
 
   #build table
