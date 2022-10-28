@@ -57,25 +57,27 @@ create_fact <- function(
         TRUE ~ CUR_AREA_TEAM_LTST_ALT_CDE
       )
     ) |>
-    dplyr::select(
-      LVL_5_OUPDT,
-      LVL_5_OU,
-      ICB_NAME,
-      ICB_CODE,
-      LVL_5_LTST_TYPE
-    )
+    dplyr::select(LVL_5_OUPDT,
+                  LVL_5_OU,
+                  ICB_NAME,
+                  ICB_CODE,
+                  LVL_5_LTST_TYPE)
 
   # build drug dimension -------
   drug <- dplyr::tbl(con,
                      from = dbplyr::in_schema("DIM", "CDR_EP_DRUG_BNF_DIM")) |>
-    dplyr::select(
-      YEAR_MONTH,
-      BNF_CHAPTER,
-      CHAPTER_DESCR,
-      SECTION_DESCR,
-      BNF_SECTION,
-      RECORD_ID
-    )
+    dplyr::select(YEAR_MONTH,
+                  BNF_CHAPTER,
+                  CHAPTER_DESCR,
+                  SECTION_DESCR,
+                  BNF_SECTION,
+                  RECORD_ID)
+
+  # build nadp
+  nadp <- dplyr::tbl(con,
+                     from = dbplyr::in_schema("AML", "COUNTRY_NADP")) |>
+    dplyr::select(YEAR_MONTH_FACT_LINK,
+                  NADP)
 
   # build fact table
   fact <- dplyr::tbl(con,
@@ -108,12 +110,22 @@ create_fact <- function(
                         "CALC_PREC_DRUG_RECORD_ID" = "RECORD_ID",
                         "YEAR_MONTH" = "YEAR_MONTH"
                       )) |>
+    dplyr::inner_join(nadp,
+                      by = c("YEAR_MONTH" = "YEAR_MONTH_FACT_LINK")) |>
     dplyr::mutate(
       LVL_5_LTST_TYPE = case_when(
         LVL_5_LTST_TYPE == "COMMUNITY NURSE PRESCRIBING CONTRACT" ~ "GP PRACTICE / COST CENTRE",
         TRUE ~ LVL_5_LTST_TYPE
       )
     ) |>
+    mutate(ACTUAL_COST = round(((
+      ITEM_PAY_DR_NIC - (ITEM_PAY_DR_NIC * NADP)/100 +
+        ITEM_PAT_PACK_PAYMENT +
+        ITEM_PAY_OOPE_AMT +
+        ITEM_CONTAINER_ALLOWANCE
+    )
+    / 100),
+    2)) |>
     dplyr::group_by(
       YEAR_MONTH,
       FINANCIAL_YEAR,
@@ -127,17 +139,18 @@ create_fact <- function(
     ) |>
     dplyr::summarise(
       ITEM_PAY_DR_NIC = sum(ITEM_PAY_DR_NIC, na.rm = T) / 100,
+      ACTUAL_COST = sum(ACTUAL_COST, na.rm = T),
       .groups = "drop"
     )
 
 
   # drop time dimension if exists
   exists <- con |>
-    DBI::dbExistsTable(name = "PCHC_FACT_DIM")
+    DBI::dbExistsTable(name = "PCHC_FACT_DIM_TESTING")
   # Drop any existing table beforehand
   if (exists) {
     con |>
-      DBI::dbRemoveTable(name = "PCHC_FACT_DIM")
+      DBI::dbRemoveTable(name = "PCHC_FACT_DIM_TESTING")
   }
 
   #build table
