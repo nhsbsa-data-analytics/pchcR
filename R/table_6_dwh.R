@@ -24,8 +24,10 @@ fact <- dplyr::tbl(src = con,
   dplyr::group_by(
     FINANCIAL_YEAR,
     LVL_5_LTST_TYPE,
-    ICB_CODE,
-    ICB_NAME
+    BNF_CHAPTER,
+    CHAPTER_DESCR,
+    BNF_SECTION,
+    SECTION_DESCR
   ) |>
   dplyr::summarise(
     ITEM_PAY_DR_NIC = sum(ITEM_PAY_DR_NIC, na.rm = T),
@@ -37,20 +39,19 @@ fact <- dplyr::tbl(src = con,
   ) |>
   dplyr::arrange(
     FINANCIAL_YEAR,
-    ICB_CODE
+    BNF_CHAPTER,
+    BNF_SECTION
   ) |>
   dplyr::collect() |>
   dplyr::rename(
     "Financial Year" = 1,
-    "ICB Code" = 2,
-    "ICB" = 3,
-    "Primary care prescribing dispensed in the community (GBP)" = 4,
-    "Dental prescribing dispensed in the community (GBP)" = 5,
-    "Hospital prescribing dispensed in the community (GBP)" = 6
-  ) |>
-  arrange(
-    `Financial Year`,
-    `ICB Code` == "-"
+    "BNF Chapter Code" = 2,
+    "BNF Chapter Name" = 3,
+    "BNF Section Code" = 4,
+    "BNF Section Name" = 5,
+    "Primary care prescribing dispensed in the community (GBP)" = 6,
+    "Dental prescribing dispensed in the community (GBP)" = 7,
+    "Hospital prescribing dispensed in the community (GBP)" = 8
   )
 
 return(fact)

@@ -13,7 +13,8 @@
 #'
 #' @export
 #'
-#' @example table_4_dwh(con)
+#' @example
+#' table_4_dwh(con)
 
 table_4_dwh <- function(
     con
@@ -22,10 +23,8 @@ table_4_dwh <- function(
 fact <- dplyr::tbl(src = con,
                    from = "PCHC_FACT_DIM") |>
   dplyr::group_by(
-    FINANCIAL_YEAR,
-    LVL_5_LTST_TYPE,
-    BNF_CHAPTER,
-    CHAPTER_DESCR
+    YEAR_MONTH,
+    LVL_5_LTST_TYPE
   ) |>
   dplyr::summarise(
     ITEM_PAY_DR_NIC = sum(ITEM_PAY_DR_NIC, na.rm = T),
@@ -36,17 +35,14 @@ fact <- dplyr::tbl(src = con,
     values_from = "ITEM_PAY_DR_NIC"
   ) |>
   dplyr::arrange(
-    FINANCIAL_YEAR,
-    BNF_CHAPTER
+    YEAR_MONTH
   ) |>
   dplyr::collect() |>
   dplyr::rename(
-    "Financial Year" = 1,
-    "BNF Chapter" = 2,
-    "BNF Chapter Description" = 3,
-    "Primary care prescribing dispensed in the community (GBP)" = 4,
-    "Dental prescribing dispensed in the community (GBP)" = 5,
-    "Hospital prescribing dispensed in the community (GBP)" = 6
+    "Year Month" = 1,
+    "Primary care prescribing dispensed in the community (GBP)" = 2,
+    "Dental prescribing dispensed in the community (GBP)" = 3,
+    "Hospital prescribing dispensed in the community (GBP)" = 4
   )
 
 return(fact)

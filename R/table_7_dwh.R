@@ -24,10 +24,6 @@ fact <- dplyr::tbl(src = con,
   dplyr::group_by(
     FINANCIAL_YEAR,
     LVL_5_LTST_TYPE,
-    BNF_CHAPTER,
-    CHAPTER_DESCR,
-    BNF_SECTION,
-    SECTION_DESCR,
     ICB_CODE,
     ICB_NAME
   ) |>
@@ -41,22 +37,16 @@ fact <- dplyr::tbl(src = con,
   ) |>
   dplyr::arrange(
     FINANCIAL_YEAR,
-    BNF_CHAPTER,
-    BNF_SECTION,
     ICB_CODE
   ) |>
   dplyr::collect() |>
   dplyr::rename(
     "Financial Year" = 1,
-    "BNF Chapter" = 2,
-    "BNF Chapter Description" = 3,
-    "BNF Section" = 4,
-    "BNF Section Description" = 5,
-    "ICB Code" = 6,
-    "ICB" = 7,
-    "Primary care prescribing dispensed in the community (GBP)" = 8,
-    "Dental prescribing dispensed in the community (GBP)" = 9,
-    "Hospital prescribing dispensed in the community (GBP)" = 10
+    "ICB Code" = 2,
+    "ICB" = 3,
+    "Primary care prescribing dispensed in the community (GBP)" = 4,
+    "Dental prescribing dispensed in the community (GBP)" = 5,
+    "Hospital prescribing dispensed in the community (GBP)" = 6
   ) |>
   arrange(
     `Financial Year`,
