@@ -21,7 +21,7 @@
 
 create_fact <- function(
     con,
-    from = 201604L,
+    from = 201704L,
     to = 202203L) {
 
   #build time dimension ---------
@@ -29,8 +29,8 @@ create_fact <- function(
                      from = dbplyr::in_schema("DIM", "YEAR_MONTH_DIM")) |>
     dplyr::select(FINANCIAL_YEAR, YEAR_MONTH) |>
     dplyr::filter(
-      YEAR_MONTH >= 201604L,
-      YEAR_MONTH <= 202203L
+      YEAR_MONTH >= from,
+      YEAR_MONTH <= to
     )
 
   # build org dimension -------
@@ -118,14 +118,13 @@ create_fact <- function(
         TRUE ~ LVL_5_LTST_TYPE
       )
     ) |>
-    mutate(ACTUAL_COST = round(((
+    mutate(ACTUAL_COST = ((
       ITEM_PAY_DR_NIC - (ITEM_PAY_DR_NIC * NADP)/100 +
         ITEM_PAT_PACK_PAYMENT +
         ITEM_PAY_OOPE_AMT +
         ITEM_CONTAINER_ALLOWANCE
     )
-    / 100),
-    2)) |>
+    / 100)) |>
     dplyr::group_by(
       YEAR_MONTH,
       FINANCIAL_YEAR,
@@ -139,7 +138,7 @@ create_fact <- function(
     ) |>
     dplyr::summarise(
       ITEM_PAY_DR_NIC = sum(ITEM_PAY_DR_NIC, na.rm = T) / 100,
-      ACTUAL_COST = sum(ACTUAL_COST, na.rm = T),
+      ACTUAL_COST = round(sum(ACTUAL_COST, na.rm = T),2),
       .groups = "drop"
     )
 
